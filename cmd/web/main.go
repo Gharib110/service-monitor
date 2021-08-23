@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"runtime"
 	"time"
 )
@@ -61,9 +62,17 @@ func main() {
 
 	log.Printf("Starting HTTP server on port %s....", *insecurePort)
 
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+
 	// start the server
-	err = srv.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
-	}
+	go func() {
+		err = srv.ListenAndServe()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	<-sigChan
+	log.Println("Server was shutdown ...")
 }

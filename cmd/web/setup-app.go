@@ -17,6 +17,7 @@ import (
 	"time"
 )
 
+// setupApp use for setting the application utilities
 func setupApp() (*string, error) {
 	// read flags
 	insecurePort := flag.String("port", ":4000", "port to listen on")
