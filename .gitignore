@@ -1,8 +1,6 @@
 .idea
 database.yml
 schema.sql
-run.sh
-run.bat
 soda.exe
 .DS_Store
 *.code-workspace

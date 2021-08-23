@@ -1,0 +1,2 @@
+go build -o service-monitor.exe cmd/web/.
+service-monitor -dbuser='dapperblondie' -pusherHost='localhost:4001' -pusherSecret='123abc' -pusherKey='abc123' -pusherSecure=false pusherApp="1" -db="monitor"
