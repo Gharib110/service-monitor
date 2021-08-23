@@ -46,7 +46,7 @@
         <div class="sidebar-content js-simplebar">
             <a class="sidebar-brand text-center" href="/">
                 <span class="align-middle">
-                    <span class="fa fa-eye"></span> Vigilate
+                    <span class="fa fa-eye"></span> ServiceMonitor
                 </span>
             </a>
 
