@@ -3,6 +3,6 @@ database.yml
 schema.sql
 run.sh
 run.bat
-vigilate
+soda.exe
 .DS_Store
 *.code-workspace
