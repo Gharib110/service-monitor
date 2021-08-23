@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/gob"
-	"github.com/alexedwards/scs/v2"
-	"github.com/pusher/pusher-http-go"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/handlers"
 	"github.com/DapperBlondie/service-monitor/internal/models"
+	"github.com/alexedwards/scs/v2"
+	"github.com/pusher/pusher-http-go"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +20,7 @@ var session *scs.SessionManager
 var preferenceMap map[string]string
 var wsClient pusher.Client
 
-const vigilateVersion = "1.0.0"
+const Version = "1.0.0"
 const maxWorkerPoolSize = 5
 const maxJobMaxWorkers = 5
 
@@ -43,7 +43,7 @@ func main() {
 
 	// print info
 	log.Printf("******************************************")
-	log.Printf("** %sVigilate%s v%s built in %s", "\033[31m", "\033[0m", vigilateVersion, runtime.Version())
+	log.Printf("** %sService-Monitor%s v%s built in %s", "\033[31m", "\033[0m", Version, runtime.Version())
 	log.Printf("**----------------------------------------")
 	log.Printf("** Running with %d Processors", runtime.NumCPU())
 	log.Printf("** Running on %s", runtime.GOOS)

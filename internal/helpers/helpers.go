@@ -3,10 +3,10 @@ package helpers
 import (
 	"fmt"
 	"github.com/CloudyKit/jet/v6"
-	"github.com/justinas/nosurf"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/models"
 	"github.com/DapperBlondie/service-monitor/internal/templates"
+	"github.com/justinas/nosurf"
 	"log"
 	"math/rand"
 	"net/http"

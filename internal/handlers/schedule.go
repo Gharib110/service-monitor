@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/tsawler/vigilate/internal/helpers"
+	"github.com/DapperBlondie/service-monitor/internal/helpers"
 	"net/http"
 )
 

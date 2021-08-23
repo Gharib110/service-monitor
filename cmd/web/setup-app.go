@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
-	"github.com/pusher/pusher-http-go"
 	"github.com/DapperBlondie/service-monitor/internal/channeldata"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/driver"
 	"github.com/DapperBlondie/service-monitor/internal/handlers"
 	"github.com/DapperBlondie/service-monitor/internal/helpers"
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
+	"github.com/pusher/pusher-http-go"
 	"log"
 	"net/http"
 	"os"
@@ -20,14 +20,14 @@ import (
 func setupApp() (*string, error) {
 	// read flags
 	insecurePort := flag.String("port", ":4000", "port to listen on")
-	identifier := flag.String("identifier", "vigilate", "unique identifier")
+	identifier := flag.String("identifier", "monitor", "unique identifier")
 	domain := flag.String("domain", "localhost", "domain name (e.g. example.com)")
 	inProduction := flag.Bool("production", false, "application is in production")
 	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "5432", "database port")
+	dbPort := flag.String("dbport", "5720", "database port")
 	dbUser := flag.String("dbuser", "", "database user")
-	dbPass := flag.String("dbpass", "", "database password")
-	databaseName := flag.String("db", "vigilate", "database name")
+	dbPass := flag.String("dbpass", "dapperblondie", "database password")
+	databaseName := flag.String("db", "monitor", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
 	pusherHost := flag.String("pusherHost", "", "pusher host")
 	pusherPort := flag.String("pusherPort", "443", "pusher port")
@@ -96,7 +96,7 @@ func setupApp() (*string, error) {
 		Domain:       *domain,
 		PusherSecret: *pusherSecret,
 		MailQueue:    mailQueue,
-		Version:      vigilateVersion,
+		Version:      Version,
 		Identifier:   *identifier,
 	}
 
@@ -120,7 +120,7 @@ func setupApp() (*string, error) {
 	preferenceMap["pusher-port"] = *pusherPort
 	preferenceMap["pusher-key"] = *pusherKey
 	preferenceMap["identifier"] = *identifier
-	preferenceMap["version"] = vigilateVersion
+	preferenceMap["version"] = Version
 
 	app.PreferenceMap = preferenceMap
 
