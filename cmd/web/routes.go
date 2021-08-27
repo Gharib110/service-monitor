@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/go-chi/chi"
 	"github.com/DapperBlondie/service-monitor/internal/handlers"
+	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -21,6 +21,11 @@ func routes() http.Handler {
 	mux.Post("/", handlers.Repo.Login)
 
 	mux.Get("/user/logout", handlers.Repo.Logout)
+
+	mux.Route("/pusher", func(router chi.Router) {
+		router.Use(Auth)
+		router.Post("/auth", handlers.Repo.PusherAuth)
+	})
 
 	// admin routes
 	mux.Route("/admin", func(mux chi.Router) {

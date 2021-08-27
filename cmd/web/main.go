@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/handlers"
@@ -40,7 +41,12 @@ func main() {
 
 	// close channels & db when application ends
 	defer close(app.MailQueue)
-	defer app.DB.SQL.Close()
+	defer func(SQL *sql.DB) {
+		err = SQL.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(app.DB.SQL)
 
 	// print info
 	log.Printf("******************************************")
