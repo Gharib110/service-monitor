@@ -21,6 +21,7 @@ func routes() http.Handler {
 	mux.Post("/", handlers.Repo.Login)
 
 	mux.Get("/user/logout", handlers.Repo.Logout)
+	// mux.Get("pusher-test", handlers.Repo.TestPusher)
 
 	mux.Route("/pusher", func(router chi.Router) {
 		router.Use(Auth)

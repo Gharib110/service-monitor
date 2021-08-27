@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// PusherAuth use for authenticate for Pusher service
 func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	userID := repo.App.Session.GetInt(r.Context(), "userID")
 
@@ -30,4 +31,16 @@ func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(resp)
 	return
+}
+
+// TestPusher just use for testing the pusher service
+func (repo *DBRepo) TestPusher(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]string)
+	data["message"] = "Hello, World"
+
+	err := repo.App.WsClient.Trigger("public-channel", "test-event", data)
+	if err != nil {
+		log.Error().Msg(err.Error())
+		return
+	}
 }
