@@ -1,6 +1,4 @@
 .idea
-database.yml
-schema.sql
 soda.exe
 .DS_Store
 *.code-workspace
