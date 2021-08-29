@@ -39,3 +39,18 @@ type Preference struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+// Host uses for holding data about Each Host
+type Host struct {
+	ID            int
+	HostName      string
+	CanonicalName string
+	URL           string
+	IP            string
+	IPV6          string
+	Location      string
+	OS            string
+	Active        int
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
