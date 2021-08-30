@@ -184,6 +184,10 @@ func (repo *DBRepo) PostHost(w http.ResponseWriter, r *http.Request) {
 		}
 		hostID = newID
 	}
+
+	repo.App.Session.Put(r.Context(), "flash", "Changes Saved")
+	http.Redirect(w, r, fmt.Sprintf("/admin/host/%d", hostID), http.StatusSeeOther)
+	return
 }
 
 // AllUsers lists all admin users

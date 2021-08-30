@@ -33,3 +33,32 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 
 	return newID, nil
 }
+
+func (m *postgresDBRepo) GetHostByID(id int) (*models.Host, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	query := `SELECT host_name,canonical_name,url,ip,ipv6,location,os,active,created_at,updated_at
+				FROM hosts WHERE id=$1`
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	var h *models.Host = &models.Host{}
+	err := row.Scan(
+		&h.HostName,
+		&h.CanonicalName,
+		&h.URL,
+		&h.IP,
+		&h.IPV6,
+		&h.Location,
+		&h.OS,
+		&h.Active,
+		&h.CreatedAt,
+		&h.UpdatedAt,
+	)
+	if err != nil {
+		log.Error().Msg(err.Error() + "; in getting values of query")
+		return nil, err
+	}
+
+	return h, nil
+}
