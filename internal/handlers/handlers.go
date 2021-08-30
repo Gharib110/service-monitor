@@ -136,6 +136,12 @@ func (repo *DBRepo) Host(w http.ResponseWriter, r *http.Request) {
 	var h models.Host
 	if id > 0 {
 		// get existing host from database
+		host, err := repo.DB.GetHostByID(id)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		h = *host
 	}
 
 	h.HostName = "Custom Host"

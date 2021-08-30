@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// InsertHost uses for adding models.Host into Database
 func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
@@ -34,6 +35,7 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 	return newID, nil
 }
 
+// GetHostByID uses for getting a specific models.Host by its ID
 func (m *postgresDBRepo) GetHostByID(id int) (*models.Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
@@ -54,6 +56,7 @@ func (m *postgresDBRepo) GetHostByID(id int) (*models.Host, error) {
 		&h.Active,
 		&h.CreatedAt,
 		&h.UpdatedAt,
+		&h.ID,
 	)
 	if err != nil {
 		log.Error().Msg(err.Error() + "; in getting values of query")
@@ -61,4 +64,31 @@ func (m *postgresDBRepo) GetHostByID(id int) (*models.Host, error) {
 	}
 
 	return h, nil
+}
+
+// UpdateHost uses for updating a models.Host
+func (m *postgresDBRepo) UpdateHost(h *models.Host) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	stmt := `UPDATE hosts SET host_name=$1, canonical_name=$2, url=$3, ip=$4, ipv6=$5, os=$6,
+		     active=$7, locaiton=$8, updated_at=$9 WHERE id=$10`
+	_, err := m.DB.ExecContext(ctx, stmt,
+		&h.HostName,
+		&h.CanonicalName,
+		&h.URL,
+		&h.IP,
+		&h.IPV6,
+		&h.OS,
+		&h.Active,
+		&h.Location,
+		time.Now(),
+		&h.ID,
+	)
+	if err != nil {
+		log.Error().Msg(err.Error() + "; in updating host by its ID")
+		return err
+	}
+
+	return nil
 }
