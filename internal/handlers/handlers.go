@@ -3,13 +3,13 @@ package handlers
 import (
 	"fmt"
 	"github.com/CloudyKit/jet/v6"
-	"github.com/go-chi/chi"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/driver"
 	"github.com/DapperBlondie/service-monitor/internal/helpers"
 	"github.com/DapperBlondie/service-monitor/internal/models"
 	"github.com/DapperBlondie/service-monitor/internal/repository"
 	"github.com/DapperBlondie/service-monitor/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -127,9 +127,62 @@ func (repo *DBRepo) AllHosts(w http.ResponseWriter, r *http.Request) {
 
 // Host shows the host add/edit form
 func (repo *DBRepo) Host(w http.ResponseWriter, r *http.Request) {
-	err := helpers.RenderPage(w, r, "host", nil, nil)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		helpers.ServerError(w, r, err)
+		return
+	}
+
+	var h models.Host
+	if id > 0 {
+		// get existing host from database
+	}
+
+	h.HostName = "Custom Host"
+	vars := make(jet.VarMap)
+	vars.Set("host", h)
+	err = helpers.RenderPage(w, r, "host", vars, nil)
 	if err != nil {
 		printTemplateError(w, err)
+	}
+}
+
+// PostHost handles posting of host form
+func (repo *DBRepo) PostHost(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		log.Println(err.Error() + "; in converting id into integer")
+		helpers.ServerError(w, r, err)
+		return
+	}
+
+	var h models.Host
+	var hostID int
+	if id > 0 {
+		// get host from database
+	} else {
+		err = r.ParseForm()
+		if err != nil {
+			helpers.ServerError(w, r, err)
+			return
+		}
+		h.HostName = r.Form.Get("host_name")
+		h.CanonicalName = r.Form.Get("canonical_name")
+		h.URL = r.Form.Get("url")
+		h.IP = r.Form.Get("ip")
+		h.IPV6 = r.Form.Get("ipv6")
+		h.Location = r.Form.Get("location")
+		h.OS = r.Form.Get("os")
+		active, _ := strconv.Atoi(r.Form.Get("active"))
+		h.Active = active
+
+		newID, err := repo.DB.InsertHost(h)
+		if err != nil {
+			log.Println(err.Error())
+			helpers.ServerError(w, r, err)
+			return
+		}
+		hostID = newID
 	}
 }
 
