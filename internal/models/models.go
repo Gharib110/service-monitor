@@ -54,3 +54,27 @@ type Host struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
+
+// Services uses for holding data about Each Service
+type Services struct {
+	ID          int
+	Icon        string
+	ServiceName string
+	Active      int
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+// HostServices uses for managing and holding data about each Host and Services
+type HostServices struct {
+	ID             int
+	ServiceID      int
+	HostID         int
+	Active         int
+	ScheduleNumber int
+	Status         string
+	ScheduleUnit   string
+	LastCheck      time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
