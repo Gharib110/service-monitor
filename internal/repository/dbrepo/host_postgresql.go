@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"database/sql"
 	"github.com/DapperBlondie/service-monitor/internal/models"
 	"github.com/rs/zerolog/log"
 	"time"
@@ -91,4 +92,52 @@ func (m *postgresDBRepo) UpdateHost(h *models.Host) error {
 	}
 
 	return nil
+}
+
+func (m *postgresDBRepo) GetAllHosts() ([]*models.Host, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	query := `SELECT id, host_name, canonical_name, url, ip, ipv6, location, os, active, created_at,
+				updated_at FROM ORDER BY host_name`
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		log.Error().Msg(err.Error())
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Msg(err.Error())
+			return
+		}
+	}(rows)
+	var hosts []*models.Host = []*models.Host{}
+	for rows.Next() {
+		var h *models.Host = &models.Host{}
+		err = rows.Scan(
+			&h.ID,
+			&h.HostName,
+			&h.CanonicalName,
+			&h.URL,
+			&h.IP,
+			&h.IPV6,
+			&h.Location,
+			&h.OS,
+			&h.Active,
+			&h.CreatedAt,
+			&h.UpdatedAt,
+		)
+		if err != nil {
+			log.Error().Msg(err.Error())
+			return nil, err
+		}
+		hosts = append(hosts, h)
+	}
+	if err = rows.Err(); err != nil {
+		log.Error().Msg(err.Error())
+		return nil, err
+	}
+
+	return hosts, nil
 }
