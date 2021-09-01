@@ -53,6 +53,7 @@ type Host struct {
 	Active        int
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Services      []HostServices
 }
 
 // Services uses for holding data about Each Service
@@ -77,4 +78,5 @@ type HostServices struct {
 	LastCheck      time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	Service        Services
 }

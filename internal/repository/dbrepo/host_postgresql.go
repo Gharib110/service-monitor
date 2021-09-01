@@ -33,6 +33,14 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 		return newID, err
 	}
 
+	stmt := `INSERT INTO host_services (host_id, service_id, active, schedule_number, schedule_unit,
+				status, created_at, updated_at) VALUES ($1, 1, 0, 3, 'm', 'pending', $2, $3)`
+	_, err = m.DB.ExecContext(ctx, stmt, newID, time.Now(), time.Now())
+	if err != nil {
+		log.Error().Msg(err.Error())
+		return newID, err
+	}
+	
 	return newID, nil
 }
 
@@ -94,6 +102,7 @@ func (m *postgresDBRepo) UpdateHost(h *models.Host) error {
 	return nil
 }
 
+// GetAllHosts uses for getting all models.Host
 func (m *postgresDBRepo) GetAllHosts() ([]*models.Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
