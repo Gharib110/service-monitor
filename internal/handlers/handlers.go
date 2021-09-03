@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/CloudyKit/jet/v6"
 	"github.com/DapperBlondie/service-monitor/internal/config"
@@ -265,6 +266,37 @@ func (repo *DBRepo) OneUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type serviceJSON struct {
+	OK bool `json:"ok"`
+}
+
+// ToggleServiceForHost uses toggling a service for specific host
+func (repo *DBRepo) ToggleServiceForHost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	hostID, _ := strconv.Atoi(r.Form.Get("host_id"))
+	serviceID, _ := strconv.Atoi(r.Form.Get("service_id"))
+	active, _ := strconv.Atoi(r.Form.Get("active"))
+	log.Println("Data : ", hostID, serviceID, active)
+
+	rsp := &serviceJSON{OK: true}
+	out, err := json.MarshalIndent(rsp, "", "     ")
+	if err != nil {
+		ServerError(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(out)
+
+	return
+}
+
 // PostOneUser adds/edits a user
 func (repo *DBRepo) PostOneUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
@@ -357,6 +389,7 @@ func show500(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./ui/static/500.html")
 }
 
+// printTemplateError uses for printing an error in template
 func printTemplateError(w http.ResponseWriter, err error) {
 	_, _ = fmt.Fprint(w, fmt.Sprintf(`<small><span class='text-danger'>Error executing template: %s</span></small>`, err))
 }
