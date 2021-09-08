@@ -1,19 +1,22 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/pusher/pusher-http-go"
-	"github.com/rs/zerolog/log"
-	"io/ioutil"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
 
-// PusherAuth use for authenticate for Pusher service
+// PusherAuth authenticates the user to our pusher server
 func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	userID := repo.App.Session.GetInt(r.Context(), "userID")
 
 	u, _ := repo.DB.GetUserById(userID)
-	params, _ := ioutil.ReadAll(r.Body)
+
+	params, _ := io.ReadAll(r.Body)
+
 	presenceData := pusher.MemberData{
 		UserID: strconv.Itoa(userID),
 		UserInfo: map[string]string{
@@ -22,25 +25,23 @@ func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	resp, err := app.WsClient.AuthenticatePresenceChannel(params, presenceData)
+	response, err := app.WsClient.AuthenticatePresenceChannel(params, presenceData)
 	if err != nil {
-		log.Error().Msg(err.Error() + "; in authenticating presence channel")
+		log.Println(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(resp)
-	return
+	_, _ = w.Write(response)
 }
 
-// TestPusher just use for testing the pusher service
-func (repo *DBRepo) TestPusher(w http.ResponseWriter, r *http.Request) {
-	data := make(map[string]string)
-	data["message"] = "Hello, World"
+// SendPrivateMessage is sample code for sending to private channel
+func (repo *DBRepo) SendPrivateMessage(w http.ResponseWriter, r *http.Request) {
+	msg := r.URL.Query().Get("msg")
+	id := r.URL.Query().Get("id")
 
-	err := repo.App.WsClient.Trigger("public-channel", "test-event", data)
-	if err != nil {
-		log.Error().Msg(err.Error())
-		return
-	}
+	data := make(map[string]string)
+	data["message"] = msg
+
+	_ = repo.App.WsClient.Trigger(fmt.Sprintf("private-channel-%s", id), "private-message", data)
 }

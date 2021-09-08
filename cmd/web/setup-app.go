@@ -11,30 +11,30 @@ import (
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/pusher/pusher-http-go"
+	"github.com/robfig/cron/v3"
 	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
-// setupApp use for setting the application utilities
 func setupApp() (*string, error) {
 	// read flags
 	insecurePort := flag.String("port", ":4000", "port to listen on")
-	identifier := flag.String("identifier", "monitor", "unique identifier")
+	identifier := flag.String("identifier", "vigilate", "unique identifier")
 	domain := flag.String("domain", "localhost", "domain name (e.g. example.com)")
 	inProduction := flag.Bool("production", false, "application is in production")
 	dbHost := flag.String("dbhost", "localhost", "database host")
 	dbPort := flag.String("dbport", "5432", "database port")
-	dbUser := flag.String("dbuser", "dapperblondie", "database user")
-	dbPass := flag.String("dbpass", "dapperblondie", "database password")
-	databaseName := flag.String("db", "monitor", "database name")
+	dbUser := flag.String("dbuser", "", "database user")
+	dbPass := flag.String("dbpass", "", "database password")
+	databaseName := flag.String("db", "vigilate", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
-	pusherHost := flag.String("pusherHost", "localhost", "pusher host")
-	pusherPort := flag.String("pusherPort", "4343", "pusher port")
-	pusherApp := flag.String("pusherApp", "1", "pusher app id")
-	pusherKey := flag.String("pusherKey", "abc123", "pusher key")
-	pusherSecret := flag.String("pusherSecret", "123abc", "pusher secret")
+	pusherHost := flag.String("pusherHost", "", "pusher host")
+	pusherPort := flag.String("pusherPort", "443", "pusher port")
+	pusherApp := flag.String("pusherApp", "9", "pusher app id")
+	pusherKey := flag.String("pusherKey", "", "pusher key")
+	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
 	pusherSecure := flag.Bool("pusherSecure", false, "pusher server uses SSL (true or false)")
 
 	flag.Parse()
@@ -97,7 +97,7 @@ func setupApp() (*string, error) {
 		Domain:       *domain,
 		PusherSecret: *pusherSecret,
 		MailQueue:    mailQueue,
-		Version:      Version,
+		Version:      vigilateVersion,
 		Identifier:   *identifier,
 	}
 
@@ -121,7 +121,7 @@ func setupApp() (*string, error) {
 	preferenceMap["pusher-port"] = *pusherPort
 	preferenceMap["pusher-key"] = *pusherKey
 	preferenceMap["identifier"] = *identifier
-	preferenceMap["version"] = Version
+	preferenceMap["version"] = vigilateVersion
 
 	app.PreferenceMap = preferenceMap
 
@@ -137,7 +137,23 @@ func setupApp() (*string, error) {
 	log.Println("Host", fmt.Sprintf("%s:%s", *pusherHost, *pusherPort))
 	log.Println("Secure", *pusherSecure)
 
-	app.WsClient = wsClient
+	app.WsClient = &wsClient
+	monitorMap := make(map[int]cron.EntryID)
+	app.MonitorMap = monitorMap
+
+	localZone, _ := time.LoadLocation("Local")
+	scheduler := cron.New(cron.WithLocation(localZone), cron.WithChain(
+		cron.DelayIfStillRunning(cron.DefaultLogger),
+		cron.Recover(cron.DefaultLogger),
+	))
+
+	app.Scheduler = scheduler
+
+	go handlers.Repo.StartMonitoring()
+
+	if app.PreferenceMap["monitoring_live"] == "1" {
+		app.Scheduler.Start()
+	}
 
 	helpers.NewHelpers(&app)
 

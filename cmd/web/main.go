@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/gob"
 	"github.com/DapperBlondie/service-monitor/internal/config"
 	"github.com/DapperBlondie/service-monitor/internal/handlers"
@@ -11,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
 	"runtime"
 	"time"
 )
@@ -22,7 +20,7 @@ var session *scs.SessionManager
 var preferenceMap map[string]string
 var wsClient pusher.Client
 
-const Version = "1.0.0"
+const vigilateVersion = "1.0.0"
 const maxWorkerPoolSize = 5
 const maxJobMaxWorkers = 5
 
@@ -41,16 +39,11 @@ func main() {
 
 	// close channels & db when application ends
 	defer close(app.MailQueue)
-	defer func(SQL *sql.DB) {
-		err = SQL.Close()
-		if err != nil {
-			log.Println(err.Error())
-		}
-	}(app.DB.SQL)
+	defer app.DB.SQL.Close()
 
 	// print info
 	log.Printf("******************************************")
-	log.Printf("** %sService-Monitor%s v%s built in %s", "\033[31m", "\033[0m", Version, runtime.Version())
+	log.Printf("** %sVigilate%s v%s built in %s", "\033[31m", "\033[0m", vigilateVersion, runtime.Version())
 	log.Printf("**----------------------------------------")
 	log.Printf("** Running with %d Processors", runtime.NumCPU())
 	log.Printf("** Running on %s", runtime.GOOS)
@@ -68,17 +61,9 @@ func main() {
 
 	log.Printf("Starting HTTP server on port %s....", *insecurePort)
 
-	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, os.Interrupt)
-
 	// start the server
-	go func() {
-		err = srv.ListenAndServe()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	<-sigChan
-	log.Println("Server was shutdown ...")
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
