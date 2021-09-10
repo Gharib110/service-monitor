@@ -10,7 +10,6 @@ import (
 	"github.com/DapperBlondie/service-monitor/internal/models"
 	"github.com/DapperBlondie/service-monitor/internal/repository"
 	"github.com/DapperBlondie/service-monitor/internal/repository/dbrepo"
-	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
